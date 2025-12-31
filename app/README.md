@@ -13,3 +13,16 @@ bun run dev
 ```
 
 Open http://localhost:3000/ with your browser to see the result.
+
+
+# Plugins do Elysia
+bun add @elysiajs/swagger @elysiajs/cors
+
+# Banco de dados (Drizzle + PostgreSQL)
+bun add drizzle-orm postgres
+
+# S3 para upload de posters
+bun add @aws-sdk/client-s3
+
+# Dev dependencies
+bun add -d drizzle-kit @types/bun
