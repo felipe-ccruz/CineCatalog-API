@@ -41,8 +41,6 @@ yarn-error.log*
 package-lock.json
 **/*.bun
 
+#My ignore additions
 .env
-
-/src/config/env.ts
-
 rules.md
