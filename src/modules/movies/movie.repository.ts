@@ -1,53 +1,64 @@
 import { db } from '../../db'
 import { movies, type NewMovie } from '../../db/schema'
-import { like, count } from 'drizzle-orm'
+import { like, count, eq } from 'drizzle-orm'
 
 export const movieRepository = {
 
-  // Criar um novo filme
-  async create(data: NewMovie) {
-    const [movie] = await db
-      .insert(movies)
-      .values(data)
-      .returning()
-    
-    return movie
-  },
+    // Criar um novo filme
+    async create(data: NewMovie) {
+        const [movie] = await db
+            .insert(movies)
+            .values(data)
+            .returning()
 
-  // Listar filmes com paginação e filtro por título
-  async findAll(page: number, limit: number, title?: string) {
-    const offset = (page - 1) * limit
+        return movie
+    },
 
-    // Condição de filtro
-    const whereClause = title ? like(movies.title, `%${title}%`) : undefined
+    //Criar vários filmes em massa
+    async createMany(data: NewMovie[]) {
+        return db.insert(movies).values(data).returning()
+    },
 
-    // Buscar dados paginados
-    const data = await db
-      .select()
-      .from(movies)
-      .where(whereClause)
-      .limit(limit)
-      .offset(offset)
+    // Listar filmes com paginação e filtro por título
+    async findAll(page: number, limit: number, title?: string) {
+        const offset = (page - 1) * limit
 
-    // Contar total de registros
-    const [{ total }] = await db
-      .select({ total: count() })
-      .from(movies)
-      .where(whereClause)
+        // Condição de filtro
+        const whereClause = title ? like(movies.title, `%${title}%`) : undefined
 
-    return {
-      data,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit)
-      }
+        // Buscar dados paginados
+        const data = await db
+            .select()
+            .from(movies)
+            .where(whereClause)
+            .limit(limit)
+            .offset(offset)
+
+        // Contar total de registros
+        const [{ total }] = await db
+            .select({ total: count() })
+            .from(movies)
+            .where(whereClause)
+
+        return {
+            data,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit)
+            }
+        }
+    },
+
+    // Buscar filme por ID
+    async findById(id: number) {
+        const [movie] = await db
+            .select()
+            .from(movies)
+            .where(eq(movies.id, id))
+
+        return movie ?? null
     }
-  },
 
-  //Criar vários filmes em massa
-  async createMany(data: NewMovie[]) {
-    return db.insert(movies).values(data).returning()
-  }
 }
