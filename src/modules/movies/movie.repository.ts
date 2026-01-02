@@ -1,6 +1,6 @@
 import { db } from '../../db'
 import { movies, type NewMovie } from '../../db/schema'
-import { like, count, eq } from 'drizzle-orm'
+import { ilike, count, eq } from 'drizzle-orm'
 
 export const movieRepository = {
 
@@ -24,7 +24,7 @@ export const movieRepository = {
         const offset = (page - 1) * limit
 
         // Condição de filtro
-        const whereClause = title ? like(movies.title, `%${title}%`) : undefined
+        const whereClause = title ? ilike(movies.title, `%${title}%`) : undefined
 
         // Buscar dados paginados
         const data = await db
