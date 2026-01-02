@@ -9,5 +9,9 @@ export const movieRepository = {
       .returning()
     
     return movie
+  },
+
+  async findAll() {
+    return db.select().from(movies)
   }
 }
