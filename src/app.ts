@@ -2,8 +2,9 @@ import { Elysia } from 'elysia'
 import { swagger } from '@elysiajs/swagger'
 import { cors } from '@elysiajs/cors'
 
+import { movieController } from './modules/movies/movie.controller'
+
 export const app = new Elysia()
-  // Swagger (documentação automática)
   .use(swagger({
     path: '/docs',
     documentation: {
@@ -13,7 +14,6 @@ export const app = new Elysia()
       }
     }
   }))
-  // CORS
   .use(cors())
-  // Health check
   .get('/health', () => ({ status: 'ok' }))
+  .use(movieController)
