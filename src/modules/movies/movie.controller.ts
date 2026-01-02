@@ -1,6 +1,6 @@
 import { Elysia } from 'elysia'
 import { movieService } from './movie.service'
-import { CreateMovieDTO, ListMoviesQueryDTO } from './movie.schema'
+import { CreateManyMoviesDTO, CreateMovieDTO, ListMoviesQueryDTO } from './movie.schema'
 
 export const movieController = new Elysia({ prefix: '/api/movies' })
   // GET /api/movies?page=1&limit=10&title=matrix
@@ -9,6 +9,7 @@ export const movieController = new Elysia({ prefix: '/api/movies' })
   }, {
     query: ListMoviesQueryDTO
   })
+
   // POST /api/movies
   .post('/', async ({ body, set }) => {
     const movie = await movieService.create(body)
@@ -16,4 +17,13 @@ export const movieController = new Elysia({ prefix: '/api/movies' })
     return movie
   }, {
     body: CreateMovieDTO
+  })
+
+  // POST /api/movies/bulk
+  .post('/bulk', async ({ body, set }) => {
+    const created = await movieService.createMany(body)
+    set.status = 201
+    return created
+  }, {
+    body: CreateManyMoviesDTO
   })

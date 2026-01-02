@@ -10,5 +10,8 @@ export const movieService = {
     const page = query.page ?? 1
     const limit = query.limit ?? 10
     return movieRepository.findAll(page, limit, query.title)
+  },
+  async createMany(data: CreateMovieInput[]) {
+    return movieRepository.createMany(data)
   }
 }

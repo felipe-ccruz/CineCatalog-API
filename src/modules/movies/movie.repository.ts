@@ -3,6 +3,8 @@ import { movies, type NewMovie } from '../../db/schema'
 import { like, count } from 'drizzle-orm'
 
 export const movieRepository = {
+
+  // Criar um novo filme
   async create(data: NewMovie) {
     const [movie] = await db
       .insert(movies)
@@ -12,6 +14,7 @@ export const movieRepository = {
     return movie
   },
 
+  // Listar filmes com paginação e filtro por título
   async findAll(page: number, limit: number, title?: string) {
     const offset = (page - 1) * limit
 
@@ -41,5 +44,10 @@ export const movieRepository = {
         totalPages: Math.ceil(total / limit)
       }
     }
+  },
+
+  //Criar vários filmes em massa
+  async createMany(data: NewMovie[]) {
+    return db.insert(movies).values(data).returning()
   }
 }
