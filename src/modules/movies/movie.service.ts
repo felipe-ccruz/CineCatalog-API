@@ -1,5 +1,5 @@
 import { movieRepository } from './movie.repository'
-import type { CreateMovieInput, ListMoviesQuery, UpdateMovieInput} from './movie.schema'
+import type { CreateMovieInput, ListMoviesQuery, UpdateMovieInput } from './movie.schema'
 
 export const movieService = {
     async create(data: CreateMovieInput) {
@@ -32,5 +32,14 @@ export const movieService = {
         }
 
         return movieRepository.update(id, data)
+    },
+    async delete(id: number) {
+        const movie = await movieRepository.findById(id)
+
+        if (!movie) {
+            throw new Error('Movie not found')
+        }
+
+        await movieRepository.delete(id)
     }
 }

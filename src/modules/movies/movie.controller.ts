@@ -42,3 +42,11 @@ export const movieController = new Elysia({ prefix: '/api/movies' })
         params: MovieIdParamDTO,
         body: UpdateMovieDTO
     })
+
+    // DELETE /api/movies/:id
+    .delete('/:id', async ({ params, set }) => {
+        await movieService.delete(params.id)
+        set.status = 204
+    }, {
+        params: MovieIdParamDTO
+    })

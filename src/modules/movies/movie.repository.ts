@@ -70,6 +70,16 @@ export const movieRepository = {
             .returning()
 
         return movie ?? null
+    },
+
+    // Deletar um filme por ID
+    async delete(id: number) {
+        const [movie] = await db
+            .delete(movies)
+            .where(eq(movies.id, id))
+            .returning()
+
+        return movie ?? null
     }
 
 }
