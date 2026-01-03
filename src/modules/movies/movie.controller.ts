@@ -1,6 +1,6 @@
-import { Elysia } from 'elysia'
+import { Elysia, t } from 'elysia'
 import { movieService } from './movie.service'
-import { CreateManyMoviesDTO, CreateMovieDTO, ListMoviesQueryDTO, MovieIdParamDTO, UpdateMovieDTO } from './movie.schema'
+import { CreateManyMoviesDTO, CreateMovieDTO, ListMoviesQueryDTO, MovieIdParamDTO, UpdateMovieDTO, UploadPosterDTO } from './movie.schema'
 
 export const movieController = new Elysia({ prefix: '/api/movies' })
     // GET /api/movies?page=1&limit=10&title=matrix
@@ -47,6 +47,31 @@ export const movieController = new Elysia({ prefix: '/api/movies' })
     .delete('/:id', async ({ params, set }) => {
         await movieService.delete(params.id)
         set.status = 204
+    }, {
+        params: MovieIdParamDTO
+    })
+
+    // POST /api/movies/:id/poster
+    .post('/:id/poster', async ({ params, request }) => {
+        const formData = await request.formData()
+        const file = formData.get('file') as File
+
+        if (!file) {
+            throw new Error('File is required')
+        }
+
+        // Validar tipo
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
+        if (!allowedTypes.includes(file.type)) {
+            throw new Error('Invalid file type. Allowed: JPEG, PNG, WebP')
+        }
+
+        // Validar tamanho (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            throw new Error('File too large. Max: 5MB')
+        }
+
+        return movieService.uploadPoster(params.id, file)
     }, {
         params: MovieIdParamDTO
     })

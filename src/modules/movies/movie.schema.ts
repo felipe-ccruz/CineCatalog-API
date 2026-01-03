@@ -27,8 +27,17 @@ export const MovieIdParamDTO = t.Object({
 // Recebe os dados para atualizar um filme existente
 export const UpdateMovieDTO = t.Partial(CreateMovieDTO)
 
+// Recebe o arquivo de pôster para upload
+export const UploadPosterDTO = t.Object({
+  file: t.File({
+    type: ['image/jpeg', 'image/png', 'image/webp'],
+    maxSize: '5m'
+  })
+})
+
 export type CreateMovieInput = typeof CreateMovieDTO.static
 export type CreateManyMoviesInput = typeof CreateManyMoviesDTO.static
 export type ListMoviesQuery = typeof ListMoviesQueryDTO.static
 export type MovieIdParams = typeof MovieIdParamDTO.static
 export type UpdateMovieInput = typeof UpdateMovieDTO.static
+export type UploadPosterInput = typeof UploadPosterDTO.static

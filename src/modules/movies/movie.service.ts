@@ -1,5 +1,6 @@
 import { movieRepository } from './movie.repository'
 import type { CreateMovieInput, ListMoviesQuery, UpdateMovieInput } from './movie.schema'
+import { storageService } from '../../config/storage'
 
 export const movieService = {
     async create(data: CreateMovieInput) {
@@ -41,5 +42,22 @@ export const movieService = {
         }
 
         await movieRepository.delete(id)
+    },
+    async uploadPoster(id: number, file: File) {
+        const movie = await movieRepository.findById(id)
+
+        if (!movie) {
+            throw new Error('Movie not found')
+        }
+
+        // Gerar nome único
+        const ext = file.name.split('.').pop() || 'png'
+        const key = `posters/${id}-${Date.now()}.${ext}`
+
+        // Upload para S3
+        const posterUrl = await storageService.upload(file, key)
+
+        // Atualizar filme
+        return movieRepository.updatePoster(id, posterUrl)
     }
 }

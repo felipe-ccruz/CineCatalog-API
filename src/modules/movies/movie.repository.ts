@@ -80,6 +80,17 @@ export const movieRepository = {
             .returning()
 
         return movie ?? null
+    },
+
+    // Atualizar o pôster de um filme por ID
+    async updatePoster(id: number, posterUrl: string) {
+        const [movie] = await db
+            .update(movies)
+            .set({ posterUrl })
+            .where(eq(movies.id, id))
+            .returning()
+
+        return movie ?? null
     }
 
 }
