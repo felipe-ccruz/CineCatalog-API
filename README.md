@@ -116,7 +116,7 @@ bun drizzle-kit push
 ```bash
 bun run src/db/seed.ts
 ```
-<!-- não tenho seeds, eu tenho um json com as informações que tenho como passar por meio de um endpoint que aceita array, já testado e funcionando -->
+<!-- não tenho seeds, eu tenho um json com as informações que tenho como passar por meio de um endpoint que aceita array, já testado e funcionando, essas iformações estão nessa pasta do projeto pelo path C:\Users\Felipe Cruz\Desktop\My Code\TypeScript\25.12.30_CineCatalog-API\json-seeds.txt-->
 
 ### 6. Inicie o servidor
 
