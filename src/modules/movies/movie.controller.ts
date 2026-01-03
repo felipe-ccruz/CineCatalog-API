@@ -1,6 +1,7 @@
-import { Elysia, t } from 'elysia'
+import { Elysia } from 'elysia'
 import { movieService } from './movie.service'
-import { CreateManyMoviesDTO, CreateMovieDTO, ListMoviesQueryDTO, MovieIdParamDTO, UpdateMovieDTO, UploadPosterDTO } from './movie.schema'
+import { CreateManyMoviesDTO, CreateMovieDTO, ListMoviesQueryDTO, MovieIdParamDTO, UpdateMovieDTO } from './movie.schema'
+import { HttpError } from '../../shared/errors/httpError'
 
 export const movieController = new Elysia({ prefix: '/api/movies' })
     // GET /api/movies?page=1&limit=10&title=matrix
@@ -57,18 +58,20 @@ export const movieController = new Elysia({ prefix: '/api/movies' })
         const file = formData.get('file') as File
 
         if (!file) {
-            throw new Error('File is required')
+            throw HttpError.badRequest('File is required', 'FILE_REQUIRED')
         }
 
-        // Validar tipo
         const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
         if (!allowedTypes.includes(file.type)) {
-            throw new Error('Invalid file type. Allowed: JPEG, PNG, WebP')
+            throw HttpError.badRequest(
+                'Invalid file type. Allowed: JPEG, PNG, WebP',
+                'INVALID_FILE_TYPE'
+            )
         }
 
-        // Validar tamanho (5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            throw new Error('File too large. Max: 5MB')
+        const maxSize = 5 * 1024 * 1024 // 5MB
+        if (file.size > maxSize) {
+            throw HttpError.badRequest('File too large. Max: 5MB', 'FILE_TOO_LARGE')
         }
 
         return movieService.uploadPoster(params.id, file)
