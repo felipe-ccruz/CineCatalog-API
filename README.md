@@ -1,122 +1,323 @@
-# Elysia with Bun runtime
+# 🎬 CineCatalog API
 
-## Getting Started
-To get started with this template, simply paste this command into your terminal:
+API REST para catálogo de filmes desenvolvida com **Bun**, **Elysia.js**, **Drizzle ORM** e **PostgreSQL**.
+
+## 📋 Índice
+
+- [Tecnologias](#-tecnologias)
+- [Pré-requisitos](#-pré-requisitos)
+- [Instalação](#-instalação)
+- [Configuração](#-configuração)
+- [Executando o Projeto](#-executando-o-projeto)
+- [Endpoints](#-endpoints)
+- [Exemplos de Requisição](#-exemplos-de-requisição)
+- [Estrutura do Projeto](#-estrutura-do-projeto)
+
+## 🚀 Tecnologias
+
+| Tecnologia | Descrição |
+|------------|-----------|
+| [Bun](https://bun.sh/) | Runtime JavaScript ultra-rápido |
+| [Elysia.js](https://elysiajs.com/) | Framework web para Bun |
+| [Drizzle ORM](https://orm.drizzle.team/) | ORM TypeScript type-safe |
+| [PostgreSQL](https://www.postgresql.org/) | Banco de dados relacional |
+| [MinIO](https://min.io/) | Storage S3-compatível para upload de arquivos |
+| [TypeScript](https://www.typescriptlang.org/) | Superset JavaScript com tipagem estática |
+| [Docker](https://www.docker.com/) | Containerização dos serviços |
+
+## 📦 Pré-requisitos
+
+Antes de começar, você precisa ter instalado:
+
+- [Bun](https://bun.sh/) v1.0 ou superior
+- [Docker](https://www.docker.com/) e Docker Compose
+- [Git](https://git-scm.com/)
+
+### Instalando o Bun
+
 ```bash
-bun create elysia ./elysia-example
+# Windows (PowerShell)
+powershell -c "irm bun.sh/install.ps1 | iex"
+
+# Linux/macOS
+curl -fsSL https://bun.sh/install | bash
 ```
 
-## Development
-To start the development server run:
+## 🛠️ Instalação
+
+### 1. Clone o repositório
+
 ```bash
-bun run dev
+git clone https://github.com/felipe-ccruz/CineCatalog-API
+cd CineCatalog-API
 ```
 
-Open http://localhost:3000/ with your browser to see the result.
+### 2. Instale as dependências
 
-
-### Plugins do Elysia
-bun add @elysiajs/swagger @elysiajs/cors
-
-### Banco de dados (Drizzle + PostgreSQL)
-bun add drizzle-orm postgres
-
-### S3 para upload de posters
-bun add @aws-sdk/client-s3
-
-### Dev dependencies
-bun add -d drizzle-kit @types/bun
-
-# Rodar teste do banco
+```bash
+bun install
 ```
+
+## ⚙️ Configuração
+
+### 1. Crie o arquivo `.env`
+
+```bash
+cp .env.example .env
+```
+
+### 2. Configure as variáveis de ambiente
+
+```env
+# Banco de Dados
+DATABASE_URL=postgres://postgres:postgres@localhost:5433/movies
+
+# Storage S3/MinIO
+S3_ENDPOINT=http://localhost:9000
+S3_BUCKET=cine-catalog-posters
+S3_ACCESS_KEY=minioadmin
+S3_SECRET_KEY=ios3mini
+```
+
+## 🚀 Executando o Projeto
+
+### 1. Suba os serviços (PostgreSQL + MinIO)
+
+```bash
 docker compose up -d
 ```
 
+### 2. Verifique se os containers estão rodando
+
+```bash
+docker ps
 ```
+
+Deve mostrar dois containers: `postgres` e `minio`.
+
+### 3. Configure o bucket do MinIO
+
+Acesse `http://localhost:9001` no navegador:
+
+1. Login: `minioadmin` / `ios3mini`
+2. Vá em **Buckets** → **Create Bucket**
+3. Nome: `cine-catalog-posters`
+4. Clique em **Create**
+5. No bucket criado, clique em **Access Policy** → **Public**
+
+### 4. Aplique o schema no banco de dados
+
+```bash
 bun drizzle-kit push
 ```
 
+### 5. (Opcional) Popule o banco com dados iniciais
+
+```bash
+bun run src/db/seed.ts
 ```
-bun run .\src\servet.ts
+<!-- não tenho seeds, eu tenho um json com as informações que tenho como passar por meio de um endpoint que aceita array, já testado e funcionando -->
+
+### 6. Inicie o servidor
+
+```bash
+bun run src/server.ts
 ```
 
-```
-docker compose down -v 
+O servidor estará disponível em `http://localhost:3000`
+
+## 📚 Endpoints
+
+### Filmes
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/api/movies` | Listar filmes (com paginação e filtro) |
+| `GET` | `/api/movies/:id` | Buscar filme por ID |
+| `POST` | `/api/movies` | Criar novo filme |
+| `PUT` | `/api/movies/:id` | Atualizar filme |
+| `DELETE` | `/api/movies/:id` | Excluir filme |
+| `POST` | `/api/movies/:id/poster` | Upload de poster |
+
+### Health Check
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/health` | Verificar status da API |
+
+### Documentação
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/docs` | Swagger UI |
+
+## 📝 Exemplos de Requisição
+
+### Listar filmes
+
+```bash
+# Listar todos (paginado)
+curl http://localhost:3000/api/movies
+
+# Com paginação
+curl "http://localhost:3000/api/movies?page=1&limit=5"
+
+# Filtrar por título (case-insensitive)
+curl "http://localhost:3000/api/movies?title=matrix"
 ```
 
-# Dados para povoar banco de volume Docker
+**Resposta:**
 
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "The Matrix",
+      "description": "A computer hacker learns about reality",
+      "year": 1999,
+      "director": "Wachowskis",
+      "genre": "Sci-Fi",
+      "posterUrl": null,
+      "createdAt": "2026-01-03T12:00:00.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 1,
+    "totalPages": 1
+  }
+}
 ```
-[
-  {
-    "title": "The Matrix",
-    "description": "A computer hacker learns about the true nature of reality and his role in the war against its controllers.",
-    "year": 1999,
-    "director": "Wachowskis",
-    "genre": "Sci-Fi"
-  },
-  {
+
+### Buscar por ID
+
+```bash
+curl http://localhost:3000/api/movies/1
+```
+
+### Criar filme
+
+```bash
+curl -X POST http://localhost:3000/api/movies \
+  -H "Content-Type: application/json" \
+  -d '{
     "title": "Inception",
-    "description": "A thief who steals corporate secrets through dream-sharing technology is given the task of planting an idea into the mind of a CEO.",
+    "description": "A thief who steals corporate secrets",
     "year": 2010,
     "director": "Christopher Nolan",
     "genre": "Sci-Fi"
-  },
-  {
-    "title": "The Godfather",
-    "description": "The aging patriarch of an organized crime dynasty transfers control of his empire to his reluctant son.",
-    "year": 1972,
-    "director": "Francis Ford Coppola",
-    "genre": "Crime"
-  },
-  {
-    "title": "Pulp Fiction",
-    "description": "The lives of two mob hitmen, a boxer, a gangster and his wife intertwine in four tales of violence and redemption.",
-    "year": 1994,
-    "director": "Quentin Tarantino",
-    "genre": "Crime"
-  },
-  {
-    "title": "Interstellar",
-    "description": "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
-    "year": 2014,
-    "director": "Christopher Nolan",
-    "genre": "Sci-Fi"
-  },
-  {
-    "title": "Parasite",
-    "description": "Greed and class discrimination threaten the newly formed symbiotic relationship between the wealthy Park family and the destitute Kim clan.",
-    "year": 2019,
-    "director": "Bong Joon-ho",
-    "genre": "Thriller"
-  },
-  {
-    "title": "The Dark Knight",
-    "description": "When the menace known as the Joker wreaks havoc on Gotham, Batman must accept one of the greatest psychological tests of his ability to fight injustice.",
-    "year": 2008,
-    "director": "Christopher Nolan",
-    "genre": "Action"
-  },
-  {
-    "title": "Forrest Gump",
-    "description": "The presidencies of Kennedy and Johnson, the Vietnam War, and other historical events unfold from the perspective of an Alabama man with an IQ of 75.",
-    "year": 1994,
-    "director": "Robert Zemeckis",
-    "genre": "Drama"
-  },
-  {
-    "title": "Spirited Away",
-    "description": "During her family's move to the suburbs, a sullen 10-year-old girl wanders into a world ruled by gods, witches, and spirits.",
-    "year": 2001,
-    "director": "Hayao Miyazaki",
-    "genre": "Animation"
-  },
-  {
-    "title": "The Shawshank Redemption",
-    "description": "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
-    "year": 1994,
-    "director": "Frank Darabont",
-    "genre": "Drama"
-  }
-]
+  }'
 ```
+
+### Atualizar filme
+
+```bash
+curl -X PUT http://localhost:3000/api/movies/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "The Matrix Reloaded"
+  }'
+```
+
+### Excluir filme
+
+```bash
+curl -X DELETE http://localhost:3000/api/movies/1
+```
+
+### Upload de poster
+
+```bash
+curl -X POST http://localhost:3000/api/movies/1/poster \
+  -F ".\img\matrix-movie.png"
+```
+
+## 📁 Estrutura do Projeto
+
+```
+cinecatalog-api/
+├── src/
+│   ├── config/
+│   │   └── storage.ts          # Configuração S3/MinIO
+│   ├── db/
+│   │   ├── index.ts            # Conexão com banco
+│   │   └── schema.ts           # Definição das tabelas
+│   ├── modules/
+│   │   └── movies/
+│   │       ├── movie.controller.ts
+│   │       ├── movie.service.ts
+│   │       ├── movie.repository.ts
+│   │       └── movie.schema.ts
+│   ├── app.ts                  # Configuração do Elysia
+│   └── server.ts               # Entry point
+├── drizzle/                    # Migrações do banco
+├── docker-compose.yml
+├── drizzle.config.ts
+├── package.json
+├── tsconfig.json
+├── .env.example
+└── README.md
+```
+
+## 🔧 Scripts Disponíveis
+
+```bash
+# Iniciar servidor em desenvolvimento
+bun run src/server.ts
+
+# Aplicar schema no banco
+bun drizzle-kit push
+
+# Gerar migrações
+bun drizzle-kit generate
+
+# Abrir Drizzle Studio (visualizar dados)
+bun drizzle-kit studio
+
+
+## 🐳 Docker
+
+### Comandos úteis
+
+```bash
+# Subir serviços
+docker compose up -d
+
+# Parar serviços
+docker compose down
+
+# Parar e remover volumes (reset completo)
+docker compose down -v
+
+# Ver logs
+docker compose logs -f
+
+# Ver containers rodando
+docker ps
+```
+
+### Acessos
+
+| Serviço | URL | Credenciais |
+|---------|-----|-------------|
+| API | http://localhost:3000 | - |
+| Swagger | http://localhost:3000/docs | - |
+| MinIO Console | http://localhost:9001 | minioadmin / ios3mini |
+| PostgreSQL | localhost:5433 | postgres / postgres |
+
+## 📄 Modelo de Dados
+
+### Movies
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| id | serial | ID único (auto-incremento) |
+| title | text | Título do filme |
+| description | text | Descrição (opcional) |
+| year | integer | Ano de lançamento |
+| director | text | Diretor |
+| genre | text | Gênero |
+| poster_url | text | URL do poster (opcional) |
+| created_at | timestamp | Data de criação |
