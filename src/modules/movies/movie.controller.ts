@@ -1,6 +1,6 @@
 import { Elysia } from 'elysia'
 import { movieService } from './movie.service'
-import { CreateManyMoviesDTO, CreateMovieDTO, ListMoviesQueryDTO, MovieIdParamDTO} from './movie.schema'
+import { CreateManyMoviesDTO, CreateMovieDTO, ListMoviesQueryDTO, MovieIdParamDTO, UpdateMovieDTO } from './movie.schema'
 
 export const movieController = new Elysia({ prefix: '/api/movies' })
     // GET /api/movies?page=1&limit=10&title=matrix
@@ -12,7 +12,7 @@ export const movieController = new Elysia({ prefix: '/api/movies' })
 
     // GET /api/movies/:id
     .get('/:id', async ({ params }) => {
-    return movieService.findById(params.id)
+        return movieService.findById(params.id)
     }, {
         params: MovieIdParamDTO
     })
@@ -33,4 +33,12 @@ export const movieController = new Elysia({ prefix: '/api/movies' })
         return created
     }, {
         body: CreateManyMoviesDTO
+    })
+
+    // PUT /api/movies/:id
+    .put('/:id', async ({ params, body }) => {
+        return movieService.update(params.id, body)
+    }, {
+        params: MovieIdParamDTO,
+        body: UpdateMovieDTO
     })

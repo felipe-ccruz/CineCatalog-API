@@ -24,7 +24,11 @@ export const MovieIdParamDTO = t.Object({
     id: t.Numeric()
 })
 
+// Recebe os dados para atualizar um filme existente
+export const UpdateMovieDTO = t.Partial(CreateMovieDTO)
+
 export type CreateMovieInput = typeof CreateMovieDTO.static
 export type CreateManyMoviesInput = typeof CreateManyMoviesDTO.static
 export type ListMoviesQuery = typeof ListMoviesQueryDTO.static
 export type MovieIdParams = typeof MovieIdParamDTO.static
+export type UpdateMovieInput = typeof UpdateMovieDTO.static

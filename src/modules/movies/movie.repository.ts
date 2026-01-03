@@ -59,6 +59,17 @@ export const movieRepository = {
             .where(eq(movies.id, id))
 
         return movie ?? null
+    },
+
+    // Atualizar um filme existente
+    async update(id: number, data: Partial<NewMovie>) {
+        const [movie] = await db
+            .update(movies)
+            .set(data)
+            .where(eq(movies.id, id))
+            .returning()
+
+        return movie ?? null
     }
 
 }
