@@ -78,7 +78,6 @@ S3_BUCKET=cine-catalog-posters
 S3_ACCESS_KEY=minioadmin
 S3_SECRET_KEY=ios3mini
 ```
-<!-- a senha do minio é ios3mini, então mode todas as recorrencias da senha errada -->
 
 ## 🚀 Executando o Projeto
 
@@ -94,34 +93,33 @@ docker compose up -d
 docker ps
 ```
 
-Deve mostrar dois containers: `postgres` e `minio`.
+Deve mostrar três containers: `postgres`, `minio` e `minio-setup`.
 
-### 3. Configure o bucket do MinIO
+> **Nota:** O bucket `cine-catalog-posters` é criado automaticamente pelo container `minio-setup`. Caso queira gerenciar os buckets manualmente, acesse o console do MinIO em `http://localhost:9001` com as credenciais `minioadmin` / `ios3mini`.
 
-Acesse `http://localhost:9001` no navegador:
-
-1. Login: `minioadmin` / `ios3mini`
-2. Vá em **Buckets** → **Create Bucket**
-3. Nome: `cine-catalog-posters`
-4. Clique em **Create**
-5. No bucket criado, clique em **Access Policy** → **Public**
-
-<!-- não precisa mais configurar o bucket pois coloquei as configurações no docker compose junto com a criação do bucket, mas deixe a opção do usuário acessar o bucket via link e fazendo login -->
-
-### 4. Aplique o schema no banco de dados
+### 3. Aplique o schema no banco de dados
 
 ```bash
 bun drizzle-kit push
 ```
 
-### 5. (Opcional) Popule o banco com dados iniciais
+### 4. (Opcional) Popule o banco com dados iniciais
+
+O arquivo `json-seeds.txt` contém dados de exemplo. Você pode inserir via endpoint:
 
 ```bash
-bun run src/db/seed.ts
+# Usando o endpoint POST /api/movies/bulk
+curl -X POST http://localhost:3000/api/movies/bulk \
+  -H "Content-Type: application/json" \
+  -d '[
+    {"title": "The Matrix", "description": "A computer hacker learns about reality", "year": 1999, "director": "Wachowskis", "genre": "Sci-Fi"},
+    {"title": "Inception", "description": "A thief who steals corporate secrets", "year": 2010, "director": "Christopher Nolan", "genre": "Sci-Fi"}
+  ]'
 ```
-<!-- não tenho seeds, eu tenho um json com as informações que tenho como passar por meio de um endpoint que aceita array, já testado e funcionando, essas iformações estão nessa pasta do projeto pelo path C:\Users\Felipe Cruz\Desktop\My Code\TypeScript\25.12.30_CineCatalog-API\json-seeds.txt-->
 
-### 6. Inicie o servidor
+Ou copie o conteúdo de `json-seeds.txt` e envie via Postman/Insomnia para `POST /api/movies/bulk`.
+
+### 5. Inicie o servidor
 
 ```bash
 bun run src/server.ts
@@ -138,6 +136,7 @@ O servidor estará disponível em `http://localhost:3000`
 | `GET` | `/api/movies` | Listar filmes (com paginação e filtro) |
 | `GET` | `/api/movies/:id` | Buscar filme por ID |
 | `POST` | `/api/movies` | Criar novo filme |
+| `POST` | `/api/movies/bulk` | Criar vários filmes de uma vez |
 | `PUT` | `/api/movies/:id` | Atualizar filme |
 | `DELETE` | `/api/movies/:id` | Excluir filme |
 | `POST` | `/api/movies/:id/poster` | Upload de poster |
@@ -214,6 +213,17 @@ curl -X POST http://localhost:3000/api/movies \
   }'
 ```
 
+### Criar vários filmes
+
+```bash
+curl -X POST http://localhost:3000/api/movies/bulk \
+  -H "Content-Type: application/json" \
+  -d '[
+    {"title": "Movie 1", "year": 2020, "director": "Director 1", "genre": "Action"},
+    {"title": "Movie 2", "year": 2021, "director": "Director 2", "genre": "Drama"}
+  ]'
+```
+
 ### Atualizar filme
 
 ```bash
@@ -234,13 +244,13 @@ curl -X DELETE http://localhost:3000/api/movies/1
 
 ```bash
 curl -X POST http://localhost:3000/api/movies/1/poster \
-  -F ".\img\matrix-movie.png"
+  -F "file=@./img/matrix-movie.png"
 ```
 
 ## 📁 Estrutura do Projeto
 
 ```
-cinecatalog-api/
+CineCatalog-API/
 ├── src/
 │   ├── config/
 │   │   └── storage.ts          # Configuração S3/MinIO
@@ -256,6 +266,8 @@ cinecatalog-api/
 │   ├── app.ts                  # Configuração do Elysia
 │   └── server.ts               # Entry point
 ├── drizzle/                    # Migrações do banco
+├── img/                        # Imagens para teste
+├── json-seeds.txt              # Dados de exemplo para popular o banco
 ├── docker-compose.yml
 ├── drizzle.config.ts
 ├── package.json
@@ -263,7 +275,6 @@ cinecatalog-api/
 ├── .env.example
 └── README.md
 ```
-<!-- você vai precisar ajustar isso para a organização de pastas atual, com o json-seeds fora de src -->
 
 ## 🔧 Scripts Disponíveis
 
@@ -279,7 +290,7 @@ bun drizzle-kit generate
 
 # Abrir Drizzle Studio (visualizar dados)
 bun drizzle-kit studio
-
+```
 
 ## 🐳 Docker
 
@@ -325,3 +336,7 @@ docker ps
 | genre | text | Gênero |
 | poster_url | text | URL do poster (opcional) |
 | created_at | timestamp | Data de criação |
+
+---
+
+Desenvolvido com ❤️ usando Bun + Elysia.js
