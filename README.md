@@ -263,6 +263,7 @@ cinecatalog-api/
 ├── .env.example
 └── README.md
 ```
+<!-- você vai precisar ajustar isso para a organização de pastas atual, com o json-seeds fora de src -->
 
 ## 🔧 Scripts Disponíveis
 
