@@ -78,6 +78,7 @@ S3_BUCKET=cine-catalog-posters
 S3_ACCESS_KEY=minioadmin
 S3_SECRET_KEY=ios3mini
 ```
+<!-- a senha do minio é ios3mini, então mode todas as recorrencias da senha errada -->
 
 ## 🚀 Executando o Projeto
 
@@ -104,6 +105,8 @@ Acesse `http://localhost:9001` no navegador:
 3. Nome: `cine-catalog-posters`
 4. Clique em **Create**
 5. No bucket criado, clique em **Access Policy** → **Public**
+
+<!-- não precisa mais configurar o bucket pois coloquei as configurações no docker compose junto com a criação do bucket, mas deixe a opção do usuário acessar o bucket via link e fazendo login -->
 
 ### 4. Aplique o schema no banco de dados
 

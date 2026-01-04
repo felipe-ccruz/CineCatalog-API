@@ -19,7 +19,6 @@ export const app = new Elysia()
 
   // Error handler global
   .onError(({ error, code, set }) => {
-    // Erros customizados da aplicação
     if (error instanceof HttpError) {
       set.status = error.statusCode
       return {
@@ -31,7 +30,6 @@ export const app = new Elysia()
       }
     }
 
-    // Erros de validação do Elysia (schema validation)
     if (code === 'VALIDATION') {
       set.status = 400
       return {
@@ -44,7 +42,6 @@ export const app = new Elysia()
       }
     }
 
-    // Rota não encontrada
     if (code === 'NOT_FOUND') {
       set.status = 404
       return {
@@ -56,7 +53,6 @@ export const app = new Elysia()
       }
     }
 
-    // Erro genérico não tratado
     console.error('Unhandled error:', error)
     set.status = 500
     return {
