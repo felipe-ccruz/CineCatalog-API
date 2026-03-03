@@ -3,6 +3,7 @@ import { swagger } from '@elysiajs/swagger'
 import { cors } from '@elysiajs/cors'
 
 import { movieController } from './modules/movies/movie.controller'
+import { userController } from './modules/users/user.controller'
 import { HttpError } from './shared/errors/httpError'
 
 export const app = new Elysia()
@@ -66,3 +67,4 @@ export const app = new Elysia()
 
   .get('/health', () => ({ status: 'ok' }))
   .use(movieController)
+  .use(userController)
